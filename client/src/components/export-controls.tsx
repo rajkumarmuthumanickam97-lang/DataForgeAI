@@ -22,7 +22,6 @@ const FORMAT_OPTIONS: {
   { value: "json", label: "JSON", icon: FileJson },
   { value: "csv", label: "CSV", icon: FileText },
   { value: "xml", label: "XML", icon: FileCode },
-  { value: "parquet", label: "Parquet", icon: Database },
 ];
 
 export function ExportControls({
@@ -60,20 +59,6 @@ export function ExportControls({
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
-      const jsonResponse = await fetch("/api/generate-preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fields,
-          rowCount: Math.min(rowCount, 10),
-        }),
-      });
-
-      if (jsonResponse.ok) {
-        const previewData = await jsonResponse.json();
-        onDataGenerated(previewData.data);
-      }
 
       return { success: true };
     },
@@ -129,11 +114,6 @@ export function ExportControls({
               </Button>
             ))}
           </div>
-          {selectedFormat === "parquet" && (
-            <p className="text-xs text-muted-foreground">
-              Note: Parquet export currently returns JSON format. Full Parquet support coming soon.
-            </p>
-          )}
         </div>
 
         <Button

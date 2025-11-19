@@ -39,7 +39,7 @@ export type SchemaTemplate = z.infer<typeof schemaTemplateSchema>;
 export const insertSchemaTemplateSchema = schemaTemplateSchema.omit({ id: true });
 export type InsertSchemaTemplate = z.infer<typeof insertSchemaTemplateSchema>;
 
-export const exportFormatSchema = z.enum(["json", "csv", "xml", "parquet"]);
+export const exportFormatSchema = z.enum(["json", "csv", "xml"]);
 export type ExportFormat = z.infer<typeof exportFormatSchema>;
 
 export const generateDataRequestSchema = z.object({

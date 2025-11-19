@@ -2,12 +2,18 @@ import * as XLSX from "xlsx";
 import * as Papa from "papaparse";
 import type { Field, DataType } from "@shared/schema";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 export async function parseUploadedFile(
   buffer: Buffer,
   filename: string
 ): Promise<Field[]> {
   if (!buffer || buffer.length === 0) {
     throw new Error("File is empty or corrupted");
+  }
+
+  if (buffer.length > MAX_FILE_SIZE) {
+    throw new Error(`File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`);
   }
 
   const extension = filename.split(".").pop()?.toLowerCase();
@@ -28,7 +34,16 @@ export async function parseUploadedFile(
 function parseCSV(buffer: Buffer): Field[] {
   try {
     const csvText = buffer.toString("utf-8");
-    const result = Papa.parse(csvText, { header: true, preview: 10 });
+    
+    if (!csvText || csvText.trim().length === 0) {
+      throw new Error("CSV file is empty");
+    }
+
+    const result = Papa.parse(csvText, { 
+      header: true, 
+      skipEmptyLines: true,
+      transformHeader: (h) => h.trim()
+    });
 
     if (result.errors.length > 0) {
       const errorMsg = result.errors[0].message || "Failed to parse CSV file";
@@ -38,10 +53,14 @@ function parseCSV(buffer: Buffer): Field[] {
     const headers = result.meta.fields || [];
     
     if (headers.length === 0) {
-      throw new Error("CSV file has no columns");
+      throw new Error("CSV file has no valid columns");
     }
 
     const sampleData = result.data as any[];
+
+    if (sampleData.length === 0) {
+      throw new Error("CSV file has headers but no data rows");
+    }
 
     return headers.map((header, index) => ({
       id: crypto.randomUUID(),
@@ -50,7 +69,10 @@ function parseCSV(buffer: Buffer): Field[] {
       order: index,
     }));
   } catch (error: any) {
-    throw new Error(`CSV parsing failed: ${error.message}`);
+    if (error.message.startsWith("CSV")) {
+      throw error;
+    }
+    throw new Error(`Failed to process CSV file: ${error.message}`);
   }
 }
 
@@ -59,36 +81,42 @@ function parseExcel(buffer: Buffer): Field[] {
     const workbook = XLSX.read(buffer, { type: "buffer" });
     
     if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-      throw new Error("Excel file has no sheets");
+      throw new Error("Excel file contains no sheets");
     }
 
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
 
     if (!worksheet) {
-      throw new Error("Excel sheet is empty");
+      throw new Error("Excel sheet is empty or corrupted");
     }
 
-    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { 
+      defval: "",
+      blankrows: false
+    });
 
     if (jsonData.length === 0) {
-      throw new Error("Excel file has no data rows");
+      throw new Error("Excel file has headers but no data rows");
     }
 
     const headers = Object.keys(jsonData[0]);
 
     if (headers.length === 0) {
-      throw new Error("Excel file has no columns");
+      throw new Error("Excel file has no valid columns");
     }
 
     return headers.map((header, index) => ({
       id: crypto.randomUUID(),
-      name: header || `column_${index + 1}`,
+      name: header.trim() || `column_${index + 1}`,
       type: inferDataType(header, jsonData, header),
       order: index,
     }));
   } catch (error: any) {
-    throw new Error(`Excel parsing failed: ${error.message}`);
+    if (error.message.startsWith("Excel")) {
+      throw error;
+    }
+    throw new Error(`Failed to process Excel file: ${error.message}. Please ensure it's a valid .xlsx or .xls file.`);
   }
 }
 

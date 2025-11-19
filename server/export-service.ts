@@ -30,13 +30,6 @@ export function exportData(data: any[], format: ExportFormat): { content: string
         extension: "xml",
       };
 
-    case "parquet":
-      return {
-        content: JSON.stringify(data, null, 2),
-        contentType: "application/json",
-        extension: "json",
-      };
-
     default:
       throw new Error(`Unsupported export format: ${format}`);
   }
