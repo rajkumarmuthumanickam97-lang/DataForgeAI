@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 import uuid
-from schemas import SchemaTemplate, InsertSchemaTemplate
+from server.schemas import SchemaTemplate, InsertSchemaTemplate
 
 class MemStorage:
     def __init__(self):

@@ -2,7 +2,7 @@ import pandas as pd
 import uuid
 from io import BytesIO
 from typing import List
-from schemas import FieldSchema, DataType
+from server.schemas import FieldSchema, DataType
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
