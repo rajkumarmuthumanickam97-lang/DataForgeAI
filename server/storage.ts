@@ -1,37 +1,37 @@
-import { type User, type InsertUser } from "@shared/schema";
+import type { SchemaTemplate, InsertSchemaTemplate } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getTemplate(id: string): Promise<SchemaTemplate | undefined>;
+  getAllTemplates(): Promise<SchemaTemplate[]>;
+  createTemplate(template: InsertSchemaTemplate): Promise<SchemaTemplate>;
+  deleteTemplate(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private templates: Map<string, SchemaTemplate>;
 
   constructor() {
-    this.users = new Map();
+    this.templates = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getTemplate(id: string): Promise<SchemaTemplate | undefined> {
+    return this.templates.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getAllTemplates(): Promise<SchemaTemplate[]> {
+    return Array.from(this.templates.values());
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createTemplate(insertTemplate: InsertSchemaTemplate): Promise<SchemaTemplate> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const template: SchemaTemplate = { ...insertTemplate, id };
+    this.templates.set(id, template);
+    return template;
+  }
+
+  async deleteTemplate(id: string): Promise<boolean> {
+    return this.templates.delete(id);
   }
 }
 
