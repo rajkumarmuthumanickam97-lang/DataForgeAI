@@ -2,7 +2,7 @@
 
 A universal ETL data creation application with dual input modes:
 1. **File Upload**: Upload CSV/Excel templates to extract schema automatically
-2. **AI Generation**: Use natural language prompts to generate schemas with OpenAI GPT-5
+2. **AI Generation**: Use natural language prompts to generate schemas with OpenAI
 
 ## Features
 
@@ -21,49 +21,43 @@ A universal ETL data creation application with dual input modes:
 - Generate realistic sample data based on field types
 - Intelligent data generation (names, emails, addresses, etc.)
 - Preview up to 10 sample rows before exporting
-- Export in multiple formats: JSON, CSV, XML, Parquet (JSON fallback)
+- Export in multiple formats: JSON, CSV, XML
 - Generate from 10 to 100,000+ rows
 
 ## Technical Stack
 
 ### Frontend
-- React with TypeScript
-- Tailwind CSS + Shadcn UI components
-- React Query for state management
-- React Dropzone for file uploads
-- Wouter for routing
+- **Pure HTML/CSS/JavaScript** - No build tools required
+- Vanilla JavaScript for interactivity
+- Responsive modern design
+- Drag-and-drop file uploads
 
 ### Backend
 - **FastAPI** (Python) for high-performance async API
+- **Jinja2** for HTML templating
 - **OpenAI** Python library for AI-powered schema generation
-- **Pandas** for CSV and Excel parsing
+- **Pandas** for CSV/Excel parsing and data manipulation
 - **Faker** for intelligent data generation
 - **openpyxl** for Excel file handling
-- **xml-js** conversion via dicttoxml
 - In-memory storage for templates
 
 ## Project Structure
 
 ```
-client/
-  src/
-    components/
-      file-upload-tab.tsx     - File upload interface
-      ai-prompt-tab.tsx       - AI prompt interface
-      schema-builder.tsx      - Field configuration UI
-      data-preview.tsx        - Data preview table
-      export-controls.tsx     - Export format selector
-      template-dialog.tsx     - Template save/load
-    pages/
-      home.tsx                - Main application page
+main.py                       - FastAPI application entry point
+templates/
+  index.html                  - Main application template
+static/
+  css/
+    styles.css                - Application styles
+  js/
+    app.js                    - Frontend JavaScript logic
 server/
-  main.py                     - FastAPI application entry point
   schemas.py                  - Pydantic models and data types
   storage.py                  - In-memory template storage
   openai_service.py           - AI schema generation with OpenAI
   file_parser.py              - CSV/Excel parsing with pandas
-  export_service.py           - Multi-format data export
-  index.ts                    - Node.js wrapper to launch Python server
+  export_service.py           - Multi-format data export with pandas
 ```
 
 ## API Endpoints
@@ -98,12 +92,15 @@ The application intelligently generates data based on field types:
 
 ## Recent Changes
 
-### November 2025 - Backend Migration to Python
-- **Migrated backend from TypeScript/Node.js to Python/FastAPI**
-- Improved performance with async FastAPI server
-- Enhanced data generation using Faker library for realistic data
-- Better file parsing with pandas for CSV and Excel files
+### November 2025 - Complete Migration to Pure Python
+- **Completely removed Node.js and React dependencies**
+- **Converted frontend to pure HTML/CSS/JavaScript**
+- Simplified architecture - no build tools required
+- All data operations now use pandas DataFrames
 - Maintained all existing features and API compatibility
+- Jinja2 templating for server-side HTML rendering
+- Improved performance with async FastAPI server
+- Enhanced data generation using Faker library
 - OpenAI integration remains optional (gracefully handles missing API key)
 
 ### Initial Release
