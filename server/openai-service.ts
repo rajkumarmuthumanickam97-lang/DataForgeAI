@@ -2,10 +2,17 @@ import OpenAI from "openai";
 import type { Field, DataType } from "@shared/schema";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAIClient(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY environment variable is required for AI-powered schema generation. Please add it to enable this feature.");
+  }
+  return new OpenAI({ apiKey });
+}
 
 export async function generateSchemaFromPrompt(prompt: string): Promise<Field[]> {
   try {
+    const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
