@@ -1,6 +1,33 @@
-node_modules
-dist
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pythonlibs/
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+
+# Replit
+.upm/
+.cache/
+.replit
+
+# Data
+*.db
+*.sqlite
+*.sqlite3
