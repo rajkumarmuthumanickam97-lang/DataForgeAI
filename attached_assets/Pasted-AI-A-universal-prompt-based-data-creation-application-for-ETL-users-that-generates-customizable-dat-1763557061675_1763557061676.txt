@@ -1,0 +1,42 @@
+AI
+A universal prompt-based data creation application for ETL users that generates customizable datasets in XML, JSON, CSV, and Parquet formats
+I'll include the following features:
+
+Natural language prompt interface for describing desired data structure and content
+AI-powered data generation using OpenAI to create realistic sample data based on prompts
+Customizable field configuration with name, data type (string, number, date, boolean, email, etc.), and format options
+Dynamic schema builder with add/remove fields and preview functionality
+Multi-format export supporting JSON, CSV, XML, and Parquet with download capability
+Row count selector to generate datasets from 10 to 10,000+ records
+Real-time data preview table showing generated sample rows before export
+Save and load data templates for frequently used schemas
+Professional ETL-focused UI with clean layout and data visualization
+
+Get notified when your app is ready
+
+26 seconds of work
+I also Need to Input Data through files like I wisll be giving templates through CSV or Excel , But The outputs should be in Any format
+
+5 hours ago
+Great addition! Let me update the plan to include template file upload capabilities where you can provide CSV or Excel files as templates and convert them to any output format.
+
+App type
+Modern web app
+Integrations
+OpenAI
+A universal data creation application for ETL users with template file upload (CSV/Excel) and multi-format output (XML, JSON, CSV, Parquet) plus AI-powered prompt-based generation
+I'll include the following features:
+
+Dual input modes: upload template files (CSV/Excel) OR use prompt-based generation
+File upload interface with drag-and-drop support for CSV and Excel templates
+Automatic schema detection from uploaded files with field type inference
+Template file parsing to extract structure and use as basis for data generation
+Natural language prompt interface for describing desired data when creating from scratch
+AI-powered data generation using OpenAI to create realistic sample data matching template structure or prompts
+Customizable field configuration with name, data type (string, number, date, boolean, email, phone, address, etc.), and format options
+Dynamic schema builder with add/remove fields and real-time preview
+Universal multi-format export: JSON, CSV, XML, and Parquet from any input source
+Row count multiplier to generate more records based on template patterns
+Real-time data preview table showing generated/converted data before export
+Save and load schema templates for reusable configurations
+Professional ETL-focused UI with tabbed interface for different input methods
