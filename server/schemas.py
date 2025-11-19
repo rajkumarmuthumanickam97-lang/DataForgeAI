@@ -14,7 +14,13 @@ class FieldSchema(BaseModel):
 class InsertFieldSchema(BaseModel):
     name: str = Field(min_length=1)
     type: DataType
-    order: int
+    order: int = 0
+
+class PreviewFieldSchema(BaseModel):
+    id: Optional[str] = None
+    name: str = Field(min_length=1)
+    type: DataType
+    order: int = 0
 
 class SchemaTemplate(BaseModel):
     id: str

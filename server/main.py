@@ -11,7 +11,8 @@ from typing import List, Dict, Any
 import time
 
 from schemas import (
-    FieldSchema, 
+    FieldSchema,
+    PreviewFieldSchema,
     InsertSchemaTemplate, 
     SchemaTemplate, 
     GenerateDataRequest, 
@@ -81,7 +82,7 @@ async def generate_schema(request: AIPromptRequest):
 async def generate_preview(request: Request):
     try:
         body = await request.json()
-        fields = [FieldSchema(**f) for f in body.get("fields", [])]
+        fields = [PreviewFieldSchema(**f) for f in body.get("fields", [])]
         row_count = body.get("rowCount", 10)
         
         if not fields or len(fields) == 0:
@@ -155,6 +156,10 @@ async def delete_template(template_id: str):
         print(f"Delete template error: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete template")
 
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "service": "DataForge AI"}
+
 client_dist = Path(__file__).parent.parent / "dist" / "public"
 
 if client_dist.exists() and (client_dist / "index.html").exists():
@@ -162,6 +167,9 @@ if client_dist.exists() and (client_dist / "index.html").exists():
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        
         if not full_path or full_path == "index.html":
             return FileResponse(client_dist / "index.html")
         

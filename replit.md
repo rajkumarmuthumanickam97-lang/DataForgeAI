@@ -34,12 +34,12 @@ A universal ETL data creation application with dual input modes:
 - Wouter for routing
 
 ### Backend
-- Express.js with TypeScript
-- OpenAI GPT-5 for AI-powered schema generation
-- Multer for file uploads
-- XLSX for Excel parsing
-- PapaParse for CSV parsing
-- xml-js for XML export
+- **FastAPI** (Python) for high-performance async API
+- **OpenAI** Python library for AI-powered schema generation
+- **Pandas** for CSV and Excel parsing
+- **Faker** for intelligent data generation
+- **openpyxl** for Excel file handling
+- **xml-js** conversion via dicttoxml
 - In-memory storage for templates
 
 ## Project Structure
@@ -57,13 +57,13 @@ client/
     pages/
       home.tsx                - Main application page
 server/
-  routes.ts                   - API endpoints
-  storage.ts                  - In-memory template storage
-  openai-service.ts           - AI schema generation
-  file-parser.ts              - CSV/Excel parsing
-  export-service.ts           - Multi-format export
-shared/
-  schema.ts                   - TypeScript types and schemas
+  main.py                     - FastAPI application entry point
+  schemas.py                  - Pydantic models and data types
+  storage.py                  - In-memory template storage
+  openai_service.py           - AI schema generation with OpenAI
+  file_parser.py              - CSV/Excel parsing with pandas
+  export_service.py           - Multi-format data export
+  index.ts                    - Node.js wrapper to launch Python server
 ```
 
 ## API Endpoints
@@ -98,12 +98,21 @@ The application intelligently generates data based on field types:
 
 ## Recent Changes
 
-- Initial implementation with dual input modes
-- Added AI-powered schema generation using OpenAI GPT-5
-- Implemented multi-format export (JSON, CSV, XML)
-- Added template save/load functionality
-- Enhanced file parsing with better error handling
-- Removed emoji icons from schema builder per design guidelines
+### November 2025 - Backend Migration to Python
+- **Migrated backend from TypeScript/Node.js to Python/FastAPI**
+- Improved performance with async FastAPI server
+- Enhanced data generation using Faker library for realistic data
+- Better file parsing with pandas for CSV and Excel files
+- Maintained all existing features and API compatibility
+- OpenAI integration remains optional (gracefully handles missing API key)
+
+### Initial Release
+- Dual input modes: File upload and AI-powered generation
+- AI-powered schema generation using OpenAI
+- Multi-format export (JSON, CSV, XML)
+- Template save/load functionality
+- Enhanced file parsing with automatic type detection
+- Professional ETL-focused design
 
 ## User Preferences
 
