@@ -382,18 +382,27 @@ async function handleTemplateConfirm() {
         }
 
         try {
+            const fieldsWithoutIds = currentFields.map(f => ({
+                name: f.name,
+                type: f.type,
+                order: f.order
+            }));
+
             const response = await fetch('/api/templates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, fields: currentFields })
+                body: JSON.stringify({ name, fields: fieldsWithoutIds })
             });
 
-            if (!response.ok) throw new Error('Failed to save template');
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to save template');
+            }
 
             showToast('Template saved successfully!', 'success');
             closeTemplateModal();
         } catch (error) {
-            showToast('Failed to save template', 'error');
+            showToast(error.message || 'Failed to save template', 'error');
         }
     } else {
         const selected = document.querySelector('.template-item[style*="background"]');
