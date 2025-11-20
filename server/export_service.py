@@ -1,20 +1,25 @@
 import json
 import pandas as pd
 from typing import List, Dict, Any, Tuple
-from schemas import ExportFormat
+from server.schemas import ExportFormat
 import xml.etree.ElementTree as ET
 
 def export_data(data: List[Dict[str, Any]], format: ExportFormat) -> Tuple[bytes, str, str]:
+    df = pd.DataFrame(data)
+    return export_data_pandas(df, format)
+
+def export_data_pandas(df: pd.DataFrame, format: ExportFormat) -> Tuple[bytes, str, str]:
     if format == "json":
-        content = json.dumps(data, indent=2).encode('utf-8')
+        json_str = df.to_json(orient='records', indent=2)
+        content = (json_str or "[]").encode('utf-8')
         return content, "application/json", "json"
     
     elif format == "csv":
-        df = pd.DataFrame(data)
         content = df.to_csv(index=False).encode('utf-8')
         return content, "text/csv", "csv"
     
     elif format == "xml":
+        data = df.to_dict(orient='records')
         root = ET.Element("data")
         for item in data:
             row = ET.SubElement(root, "row")

@@ -2,7 +2,7 @@ import os
 import json
 import uuid
 from openai import OpenAI
-from schemas import FieldSchema, DataType
+from server.schemas import FieldSchema, DataType
 from typing import List, Any
 from faker import Faker
 import random

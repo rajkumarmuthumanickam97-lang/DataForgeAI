@@ -31,7 +31,7 @@ class SchemaTemplate(BaseModel):
 class InsertSchemaTemplate(BaseModel):
     name: str = Field(min_length=1)
     description: Optional[str] = None
-    fields: List[FieldSchema]
+    fields: List[InsertFieldSchema]
 
 class GenerateDataRequest(BaseModel):
     fields: List[FieldSchema]
