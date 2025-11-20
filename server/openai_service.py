@@ -19,8 +19,10 @@ def get_openai_client() -> OpenAI:
 async def generate_schema_from_prompt(prompt: str) -> List[FieldSchema]:
     try:
         client = get_openai_client()
+        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
+        # do not change this unless explicitly requested by the user
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[
                 {
                     "role": "system",
