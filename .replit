@@ -51,5 +51,5 @@ args = "python main.py"
 waitForPort = 5000
 
 [agent]
-integrations = ["javascript_mem_db:1.0.0", "javascript_openai:1.0.0", "python_openai:1.0.0"]
+integrations = ["javascript_mem_db:1.0.0", "javascript_openai:1.0.0"]
 expertMode = true
