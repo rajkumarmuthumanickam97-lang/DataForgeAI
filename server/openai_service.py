@@ -1,32 +1,31 @@
 import os
 import json
 import uuid
-from openai import OpenAI
+from google import genai
+from google.genai import types
 from server.schemas import FieldSchema, DataType
 from typing import List, Any
 from faker import Faker
 import random
 from datetime import datetime, timedelta
+from pydantic import BaseModel
 
 fake = Faker()
 
-def get_openai_client() -> OpenAI:
-    api_key = os.getenv("OPENAI_API_KEY")
+class SchemaResponse(BaseModel):
+    fields: List[dict]
+
+def get_gemini_client():
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable is required for AI-powered schema generation. Please add it to enable this feature.")
-    return OpenAI(api_key=api_key)
+        raise ValueError("GEMINI_API_KEY environment variable is required for AI-powered schema generation. Please add it to enable this feature.")
+    return genai.Client(api_key=api_key)
 
 async def generate_schema_from_prompt(prompt: str) -> List[FieldSchema]:
     try:
-        client = get_openai_client()
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
-        response = client.chat.completions.create(
-            model="gpt-5",
-            messages=[
-                {
-                    "role": "system",
-                    "content": """You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
+        client = get_gemini_client()
+        
+        system_prompt = """You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
 
 Available data types: string, number, date, boolean, email, phone, address, url, uuid, currency
 
@@ -46,17 +45,22 @@ Be intelligent about field types based on context. For example:
 - Phone numbers should be "phone"
 - Prices/amounts should be "currency"
 - True/false values should be "boolean"
-""",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
+"""
+        
+        # Using Gemini 2.5 Flash (free tier available)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                types.Content(role="user", parts=[types.Part(text=prompt)])
             ],
-            response_format={"type": "json_object"},
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type="application/json",
+                response_schema=SchemaResponse,
+            ),
         )
         
-        result = json.loads(response.choices[0].message.content or "{}")
+        result = json.loads(response.text or "{}")
         
         if not result.get("fields") or not isinstance(result["fields"], list):
             raise ValueError("Invalid response from AI")
@@ -72,7 +76,7 @@ Be intelligent about field types based on context. For example:
         
         return fields
     except Exception as e:
-        print(f"OpenAI schema generation error: {e}")
+        print(f"Gemini schema generation error: {e}")
         raise Exception(f"Failed to generate schema: {str(e)}")
 
 async def generate_data_for_field(field_name: str, field_type: DataType) -> Any:
