@@ -8,12 +8,8 @@ from typing import List, Any
 from faker import Faker
 import random
 from datetime import datetime, timedelta
-from pydantic import BaseModel
 
 fake = Faker()
-
-class SchemaResponse(BaseModel):
-    fields: List[dict]
 
 def get_gemini_client():
     api_key = os.getenv("GEMINI_API_KEY")
@@ -27,17 +23,19 @@ async def generate_schema_from_prompt(prompt: str) -> List[FieldSchema]:
         client = get_gemini_client()
         print("[DEBUG] Gemini client created successfully")
         
-        system_prompt = """You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
+        full_prompt = f"""You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
 
 Available data types: string, number, date, boolean, email, phone, address, url, uuid, currency
 
-Respond with JSON in this exact format:
-{
+User request: {prompt}
+
+Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
+{{
   "fields": [
-    { "name": "field_name", "type": "data_type", "order": 0 },
-    ...
+    {{ "name": "field_name", "type": "data_type", "order": 0 }},
+    {{ "name": "field_name2", "type": "data_type2", "order": 1 }}
   ]
-}
+}}
 
 Be intelligent about field types based on context. For example:
 - Names should be "string"
@@ -53,13 +51,9 @@ Be intelligent about field types based on context. For example:
         # Using Gemini 2.5 Flash (free tier available)
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=[
-                types.Content(role="user", parts=[types.Part(text=prompt)])
-            ],
+            contents=full_prompt,
             config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
                 response_mime_type="application/json",
-                response_schema=SchemaResponse,
             ),
         )
         
