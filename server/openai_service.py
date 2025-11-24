@@ -23,7 +23,9 @@ def get_gemini_client():
 
 async def generate_schema_from_prompt(prompt: str) -> List[FieldSchema]:
     try:
+        print(f"[DEBUG] Starting schema generation for prompt: {prompt[:100]}...")
         client = get_gemini_client()
+        print("[DEBUG] Gemini client created successfully")
         
         system_prompt = """You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
 
@@ -47,6 +49,7 @@ Be intelligent about field types based on context. For example:
 - True/false values should be "boolean"
 """
         
+        print("[DEBUG] Calling Gemini API...")
         # Using Gemini 2.5 Flash (free tier available)
         response = client.models.generate_content(
             model="gemini-2.5-flash",
@@ -60,9 +63,11 @@ Be intelligent about field types based on context. For example:
             ),
         )
         
+        print(f"[DEBUG] Gemini API response received: {response.text[:200] if response.text else 'NO TEXT'}")
         result = json.loads(response.text or "{}")
         
         if not result.get("fields") or not isinstance(result["fields"], list):
+            print(f"[DEBUG] Invalid AI response structure: {result}")
             raise ValueError("Invalid response from AI")
         
         fields = []
@@ -74,9 +79,12 @@ Be intelligent about field types based on context. For example:
                 order=index
             ))
         
+        print(f"[DEBUG] Successfully generated {len(fields)} fields")
         return fields
     except Exception as e:
-        print(f"Gemini schema generation error: {e}")
+        print(f"[ERROR] Gemini schema generation error (full details): {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise Exception(f"Failed to generate schema: {str(e)}")
 
 async def generate_data_for_field(field_name: str, field_type: DataType) -> Any:
