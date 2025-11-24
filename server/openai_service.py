@@ -1,7 +1,8 @@
 import os
 import json
 import uuid
-from openai import OpenAI
+from google import genai
+from google.genai import types
 from server.schemas import FieldSchema, DataType
 from typing import List, Any
 from faker import Faker
@@ -10,31 +11,31 @@ from datetime import datetime, timedelta
 
 fake = Faker()
 
-def get_openai_client() -> OpenAI:
-    api_key = os.getenv("OPENAI_API_KEY")
+def get_gemini_client():
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable is required for AI-powered schema generation. Please add it to enable this feature.")
-    return OpenAI(api_key=api_key)
+        raise ValueError("GEMINI_API_KEY environment variable is required for AI-powered schema generation. Please add it to enable this feature.")
+    return genai.Client(api_key=api_key)
 
 async def generate_schema_from_prompt(prompt: str) -> List[FieldSchema]:
     try:
-        client = get_openai_client()
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system",
-                    "content": """You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
+        print(f"[DEBUG] Starting schema generation for prompt: {prompt[:100]}...")
+        client = get_gemini_client()
+        print("[DEBUG] Gemini client created successfully")
+        
+        full_prompt = f"""You are a data schema expert. Given a user's description of a dataset, generate an appropriate schema with field names and data types.
 
 Available data types: string, number, date, boolean, email, phone, address, url, uuid, currency
 
-Respond with JSON in this exact format:
-{
+User request: {prompt}
+
+Respond ONLY with valid JSON in this exact format (no markdown, no code blocks):
+{{
   "fields": [
-    { "name": "field_name", "type": "data_type", "order": 0 },
-    ...
+    {{ "name": "field_name", "type": "data_type", "order": 0 }},
+    {{ "name": "field_name2", "type": "data_type2", "order": 1 }}
   ]
-}
+}}
 
 Be intelligent about field types based on context. For example:
 - Names should be "string"
@@ -44,19 +45,23 @@ Be intelligent about field types based on context. For example:
 - Phone numbers should be "phone"
 - Prices/amounts should be "currency"
 - True/false values should be "boolean"
-""",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
-            response_format={"type": "json_object"},
+"""
+        
+        print("[DEBUG] Calling Gemini API...")
+        # Using Gemini 2.5 Flash (free tier available)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=full_prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+            ),
         )
         
-        result = json.loads(response.choices[0].message.content or "{}")
+        print(f"[DEBUG] Gemini API response received: {response.text[:200] if response.text else 'NO TEXT'}")
+        result = json.loads(response.text or "{}")
         
         if not result.get("fields") or not isinstance(result["fields"], list):
+            print(f"[DEBUG] Invalid AI response structure: {result}")
             raise ValueError("Invalid response from AI")
         
         fields = []
@@ -68,9 +73,12 @@ Be intelligent about field types based on context. For example:
                 order=index
             ))
         
+        print(f"[DEBUG] Successfully generated {len(fields)} fields")
         return fields
     except Exception as e:
-        print(f"OpenAI schema generation error: {e}")
+        print(f"[ERROR] Gemini schema generation error (full details): {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise Exception(f"Failed to generate schema: {str(e)}")
 
 async def generate_data_for_field(field_name: str, field_type: DataType) -> Any:

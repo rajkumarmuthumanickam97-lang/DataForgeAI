@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
     "faker>=38.2.0",
     "fastapi>=0.121.3",
+    "google-genai>=1.52.0",
     "jinja2>=3.1.6",
     "lxml>=6.0.2",
     "openai>=2.8.1",
